@@ -263,7 +263,7 @@ final class Client
             'Accept: application/json'
         ];
 
-        if (self::hea) {
+        if (self::$headerAuthToken) {
             $headers[] = 'X-Angie-AuthApiToken: ' . self::getKey();
         }
 
