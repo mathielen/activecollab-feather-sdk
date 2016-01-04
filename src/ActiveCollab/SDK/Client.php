@@ -1,15 +1,15 @@
 <?php
 
-  namespace ActiveCollab\SDK;
+namespace ActiveCollab\SDK;
 
-  use ActiveCollab\SDK\Exceptions\FileNotReadable;
-  use ActiveCollab\SDK\Exceptions\IssueTokenException;
+use ActiveCollab\SDK\Exceptions\FileNotReadable;
+use ActiveCollab\SDK\Exceptions\IssueTokenException;
 
-  /**
-   * activeCollab API client
-   */
-  final class Client
-  {
+/**
+ * activeCollab API client
+ */
+final class Client
+{
     const VERSION = '2.0.2'; // API wrapper version
 
     /**
@@ -19,7 +19,7 @@
      */
     public static function getUserAgent()
     {
-      return 'Active Collab API Wrapper; v' . self::VERSION;
+        return 'Active Collab API Wrapper; v' . self::VERSION;
     }
 
     // ---------------------------------------------------
@@ -41,20 +41,27 @@
      */
     public static function info($property = false)
     {
-      if (self::$info_response === false) {
-        self::$info_response = self::get('info')->getJson();
-      }
+        if (self::$info_response === false) {
+            self::$info_response = self::get('info')->getJson();
+        }
 
-      if ($property) {
-        return isset(self::$info_response[$property]) && self::$info_response[$property] ? self::$info_response[$property] : null;
-      } else {
-        return self::$info_response;
-      }
+        if ($property) {
+            return isset(self::$info_response[$property]) && self::$info_response[$property] ? self::$info_response[$property] : null;
+        } else {
+            return self::$info_response;
+        }
     }
 
     // ---------------------------------------------------
     //  Make and process requests
     // ---------------------------------------------------
+
+    private static $headerAuthToken = true;
+
+    public static function useHeaderForAuthToken($headerAuthToken = true)
+    {
+        self::$headerAuthToken = $headerAuthToken;
+    }
 
     /**
      * API URL
@@ -70,7 +77,7 @@
      */
     public static function getUrl()
     {
-      return self::$url;
+        return self::$url;
     }
 
     /**
@@ -80,7 +87,7 @@
      */
     public static function setUrl($value)
     {
-      self::$url = $value;
+        self::$url = $value;
     }
 
     /**
@@ -97,7 +104,7 @@
      */
     public static function getApiVersion()
     {
-      return self::$api_version;
+        return self::$api_version;
     }
 
     /**
@@ -107,7 +114,7 @@
      */
     public static function setApiVersion($version)
     {
-      self::$api_version = (integer)$version;
+        self::$api_version = (integer)$version;
     }
 
     /**
@@ -124,7 +131,7 @@
      */
     public static function getKey()
     {
-      return self::$key;
+        return self::$key;
     }
 
     /**
@@ -134,7 +141,7 @@
      */
     public static function setKey($value)
     {
-      self::$key = $value;
+        self::$key = $value;
     }
 
     /**
@@ -151,11 +158,11 @@
      */
     public static function &getConnector()
     {
-      if (empty(self::$connector)) {
-        self::$connector = new Connector();
-      }
+        if (empty(self::$connector)) {
+            self::$connector = new Connector();
+        }
 
-      return self::$connector;
+        return self::$connector;
     }
 
     /**
@@ -169,31 +176,31 @@
      */
     public static function issueToken($email_or_username, $password, $client_name, $client_vendor, $read_only = false)
     {
-      $response = self::getConnector()->post(self::prepareUrl('issue-token'), [], self::prepareParams([
-        'username' => $email_or_username,
-        'password' => $password,
-        'client_name' => $client_name,
-        'client_vendor' => $client_vendor,
-        'read_only' => $read_only,
-      ]));
+        $response = self::getConnector()->post(self::prepareUrl('issue-token'), [], self::prepareParams([
+            'username' => $email_or_username,
+            'password' => $password,
+            'client_name' => $client_name,
+            'client_vendor' => $client_vendor,
+            'read_only' => $read_only,
+        ]));
 
-      $error = 0;
+        $error = 0;
 
-      if ($response instanceof Response && $response->isJson()) {
-        $json = $response->getJson();
+        if ($response instanceof Response && $response->isJson()) {
+            $json = $response->getJson();
 
-        if (is_array($json) && !empty($json['is_ok']) && !empty($json['token'])) {
-          return $json['token'];
-        } else {
-          if (empty($json['error'])) {
-            return 'Invalid response';
-          } else {
-            return $json['error'];
-          }
+            if (is_array($json) && !empty($json['is_ok']) && !empty($json['token'])) {
+                return $json['token'];
+            } else {
+                if (empty($json['error'])) {
+                    return 'Invalid response';
+                } else {
+                    return $json['error'];
+                }
+            }
         }
-      }
 
-      throw new IssueTokenException($error);
+        throw new IssueTokenException($error);
     }
 
     /**
@@ -204,45 +211,45 @@
      */
     public static function get($path)
     {
-      return self::getConnector()->get(self::prepareUrl($path), self::prepareHeaders());
+        return self::getConnector()->get(self::prepareUrl($path), self::prepareHeaders());
     }
 
     /**
      * Send a POST request
      *
-     * @param  string     $path
+     * @param  string $path
      * @param  array|null $params
      * @param  array|null $attachments
      * @return Response
      */
     public static function post($path, $params = null, $attachments = null)
     {
-      return self::getConnector()->post(self::prepareUrl($path), self::prepareHeaders(), self::prepareParams($params), self::prepareAttachments($attachments));
+        return self::getConnector()->post(self::prepareUrl($path), self::prepareHeaders(), self::prepareParams($params), self::prepareAttachments($attachments));
     }
 
     /**
      * Send a PUT request
      *
-     * @param  string     $path
+     * @param  string $path
      * @param  array|null $params
      * @param  array|null $attachments
      * @return Response
      */
     public static function put($path, $params = null, $attachments = null)
     {
-      return self::getConnector()->put(self::prepareUrl($path), self::prepareHeaders(), self::prepareParams($params), self::prepareAttachments($attachments));
+        return self::getConnector()->put(self::prepareUrl($path), self::prepareHeaders(), self::prepareParams($params), self::prepareAttachments($attachments));
     }
 
     /**
      * Send a delete command
      *
-     * @param  string     $path
+     * @param  string $path
      * @param  array|null $params
      * @return Response
      */
     public static function delete($path, $params = null)
     {
-      return self::getConnector()->delete(self::prepareUrl($path), self::prepareHeaders(), self::prepareParams($params));
+        return self::getConnector()->delete(self::prepareUrl($path), self::prepareHeaders(), self::prepareParams($params));
     }
 
     /**
@@ -252,7 +259,15 @@
      */
     private static function prepareHeaders()
     {
-      return [ 'X-Angie-AuthApiToken: ' . self::getKey() ];
+        $headers = [
+            'Accept: application/json'
+        ];
+
+        if (self::hea) {
+            $headers[] = 'X-Angie-AuthApiToken: ' . self::getKey();
+        }
+
+        return $headers;
     }
 
     /**
@@ -263,17 +278,24 @@
      */
     private static function prepareUrl($path)
     {
-      $bits = parse_url($path);
+        $bits = parse_url($path);
 
-      $path = isset($bits['path']) && $bits['path'] ? $bits['path'] : '/';
+        $path = isset($bits['path']) && $bits['path'] ? $bits['path'] : '/';
 
-      if (substr($path, 0, 1) !== '/') {
-        $path = '/' . $path;
-      }
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
 
-      $query = isset($bits['query']) && $bits['query'] ? '?' . $bits['query'] : '';
+        if (!self::$headerAuthToken) {
+            $bits['query'] =
+                isset($bits['query']) && $bits['query'] ?
+                    $bits['query'] .= '&auth_api_token=' . self::getKey() :
+                    $bits['query'] = '&auth_api_token=' . self::getKey();
+        }
 
-      return self::getUrl() . '/api/v' . self::getApiVersion() . $path . $query;
+        $query = isset($bits['query']) && $bits['query'] ? '?' . $bits['query'] : '';
+
+        return self::getUrl() . '/api/v' . self::getApiVersion() . $path . $query;
     }
 
     /**
@@ -284,7 +306,7 @@
      */
     private static function prepareParams($params)
     {
-      return empty($params) ? [] : $params;
+        return empty($params) ? [] : $params;
     }
 
     /**
@@ -296,22 +318,22 @@
      */
     private static function prepareAttachments($attachments = null)
     {
-      $file_params = [];
+        $file_params = [];
 
-      if ($attachments) {
-        $counter = 1;
+        if ($attachments) {
+            $counter = 1;
 
-        foreach ($attachments as $attachment) {
-          $path = is_array($attachment) ? $attachment[0] : $attachment;
+            foreach ($attachments as $attachment) {
+                $path = is_array($attachment) ? $attachment[0] : $attachment;
 
-          if (is_readable($path)) {
-            $file_params['attachment_' . $counter++] = $attachment;
-          } else {
-            throw new FileNotReadable($attachment);
-          }
+                if (is_readable($path)) {
+                    $file_params['attachment_' . $counter++] = $attachment;
+                } else {
+                    throw new FileNotReadable($attachment);
+                }
+            }
         }
-      }
 
-      return $file_params;
+        return $file_params;
     }
-  }
+}
