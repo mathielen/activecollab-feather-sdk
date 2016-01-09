@@ -165,6 +165,11 @@ final class Client
         return self::$connector;
     }
 
+    public static function setConnector(Connector $connector)
+    {
+        self::$connector = $connector;
+    }
+
     /**
      * @param  string $email_or_username
      * @param  string $password
