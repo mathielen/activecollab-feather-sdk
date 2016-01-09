@@ -7,7 +7,7 @@ use ActiveCollab\SDK\Exceptions\CallFailed;
 /**
  * Connector makes requests and returns API responses
  */
-final class Connector
+class Connector
 {
 
   private $contentTypeForPost = 'application/json';
